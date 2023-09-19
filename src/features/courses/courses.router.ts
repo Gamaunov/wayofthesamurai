@@ -1,24 +1,15 @@
-import { CoursesType, DBType } from "../db/db";
+import { CoursesType, DBType } from "../../db/db";
 import express, { Response } from "express";
-import { CourseViewModel } from "../models/CourseViewModel";
-import { HTTP_STATUSES } from "../utils";
+import { CourseViewModel } from "./models/CourseViewModel";
+import { HTTP_STATUSES } from "../../utils";
 import {
   RequestWithBody,
   RequestWithParams,
   RequestWithParamsAndBody,
   RequestWithQuery,
-} from "../types";
-import { QueryCoursesModel } from "../models/QueryCoursesModel";
-import { CreateCourseModel } from "../models/CreateCourseModel";
-
-// export const getCourseViewModel = (dbCourse: CoursesType): CourseViewModel => {
-//   return {
-//     id:dbCourse.id,
-//     title:dbCourse.title,
-//   }
-// }
-
-// export const getCoursesRouter  = (db:DBType)=>{
+} from "../../types";
+import { QueryCoursesModel } from "./models/QueryCoursesModel";
+import { CreateCourseModel } from "./models/CreateCourseModel";
 
 const getCourseViewModel = (dbCourse: CoursesType): CourseViewModel => {
   return {

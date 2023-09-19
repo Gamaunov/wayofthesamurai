@@ -1,4 +1,4 @@
-export type CourseViewModel = {
-  id: number
-  title: string
-}
+export type UserViewModel = {
+  id: number;
+  username: string;
+};

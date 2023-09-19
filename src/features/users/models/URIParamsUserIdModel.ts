@@ -1,3 +1,3 @@
-export type URIParamsCourseIdModel = {
-  id: string
-}
+export type URIParamsUserIdModel = {
+  id: string;
+};

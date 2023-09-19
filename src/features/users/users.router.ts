@@ -1,29 +1,20 @@
-import { CoursesType, DBType } from "../db/db";
+import { DBType, UserType } from "../../db/db";
 import express, { Response } from "express";
-import { CourseViewModel } from "../models/CourseViewModel";
-import { HTTP_STATUSES } from "../utils";
+import { HTTP_STATUSES } from "../../utils";
 import {
   RequestWithBody,
   RequestWithParams,
   RequestWithParamsAndBody,
   RequestWithQuery,
-} from "../types";
-import { QueryCoursesModel } from "../models/QueryCoursesModel";
-import { CreateCourseModel } from "../models/CreateCourseModel";
+} from "../../types";
+import { UserViewModel } from "./models/UserViewModel";
+import { CreateUserModel } from "./models/CreateUserModel";
+import { QueryUserModel } from "./models/QueryUserModel";
 
-// export const getCourseViewModel = (dbCourse: CoursesType): CourseViewModel => {
-//   return {
-//     id:dbCourse.id,
-//     title:dbCourse.title,
-//   }
-// }
-
-// export const getCoursesRouter  = (db:DBType)=>{
-
-const getCourseViewModel = (dbCourse: CoursesType): CourseViewModel => {
+export const mapEntityToViewModel = (dbEntity: UserType): UserViewModel => {
   return {
-    id: dbCourse.id,
-    title: dbCourse.title,
+    id: dbEntity.id,
+    username: dbEntity.username,
   };
 };
 
@@ -32,81 +23,74 @@ export const getUsersRouter = (db: DBType) => {
 
   router.get(
     "/",
-    (
-      req: RequestWithQuery<QueryCoursesModel>,
-      res: Response<CourseViewModel[]>,
-    ) => {
-      let foundCourses = db.courses;
+    (req: RequestWithQuery<QueryUserModel>, res: Response<UserViewModel[]>) => {
+      let foundEntities = db.users;
 
-      if (req.query.title) {
-        foundCourses = foundCourses.filter(
-          (c) => c.title.indexOf(req.query.title) > -1,
+      if (req.query.username) {
+        foundEntities = foundEntities.filter(
+          (c) => c.username.indexOf(req.query.username) > -1,
         );
       }
-      res.json(foundCourses.map(getCourseViewModel));
+      res.json(foundEntities.map(mapEntityToViewModel));
     },
   );
 
   router.get(
     `/:id`,
-    (
-      req: RequestWithParams<{ id: string }>,
-      res: Response<CourseViewModel>,
-    ) => {
-      let foundCourse = db.courses.find((c) => c.id === +req.params.id);
+    (req: RequestWithParams<{ id: string }>, res: Response<UserViewModel>) => {
+      let foundEntity = db.users.find((c) => c.id === +req.params.id);
 
-      if (!foundCourse) {
+      if (!foundEntity) {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         return;
       }
 
-      res.json(getCourseViewModel(foundCourse));
+      res.json(mapEntityToViewModel(foundEntity));
     },
   );
 
   router.post(
     `/`,
-    (
-      req: RequestWithBody<CreateCourseModel>,
-      res: Response<CourseViewModel>,
-    ) => {
+    (req: RequestWithBody<CreateUserModel>, res: Response<UserViewModel>) => {
       if (!req.body.username) {
         res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
         return;
       }
-      const createdCourse: CoursesType = {
+      const createdEntity: UserType = {
         id: +new Date(),
-        title: req.body.username,
-        studentsCount: 0,
+        username: req.body.username,
       };
-      db.courses.push(createdCourse);
+      db.users.push(createdEntity);
 
       res
         .status(HTTP_STATUSES.CREATED_201)
-        .json(getCourseViewModel(createdCourse));
+        .json(mapEntityToViewModel(createdEntity));
     },
   );
 
   router.delete(`/:id`, (req: RequestWithParams<{ id: string }>, res) => {
-    db.courses = db.courses.filter((c) => c.id !== +req.params.id);
+    db.users = db.users.filter((c) => c.id !== +req.params.id);
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
   });
 
   router.put(
     `/:id`,
-    (req: RequestWithParamsAndBody<{ id: string }, { title: string }>, res) => {
-      if (!req.body.title) {
+    (
+      req: RequestWithParamsAndBody<{ id: string }, { username: string }>,
+      res,
+    ) => {
+      if (!req.body.username) {
         res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
         return;
       }
-      const foundCourse = db.courses.find((c) => c.id === +req.params.id);
+      const foundEntity = db.users.find((c) => c.id === +req.params.id);
 
-      if (!foundCourse) {
+      if (!foundEntity) {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404);
         return;
       }
 
-      foundCourse.title = req.body.title;
+      foundEntity.username = req.body.username;
 
       res.sendStatus(HTTP_STATUSES.NO_CONTENT_204);
     },

@@ -1,3 +1,3 @@
-export type UpdateUsereModel = {
+export type UpdateCourseModel = {
   title: string;
 };

@@ -1,3 +1,3 @@
-export type CreateCourseModel = {
+export type CreateUserModel = {
   username: string;
 };

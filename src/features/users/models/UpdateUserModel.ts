@@ -1,3 +1,3 @@
-export type UpdateUsereModel = {
-  title: string;
+export type UpdateUserModel = {
+  username: string;
 };

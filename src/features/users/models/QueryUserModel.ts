@@ -1,3 +1,3 @@
-export type QueryCoursesModel = {
-  title: string;
+export type QueryUserModel = {
+  username: string;
 };

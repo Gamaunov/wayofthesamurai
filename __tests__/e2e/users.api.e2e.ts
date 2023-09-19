@@ -3,6 +3,7 @@ import { app, RouterPath } from "../../src/app";
 import { HTTP_STATUSES } from "../../src/utils";
 import { CreateUserModel } from "../../src/features/users/models/CreateUserModel";
 import { UpdateUserModel } from "../../src/features/users/models/UpdateUserModel";
+import { usersTestManager } from "../../usersTestManager";
 
 const getRequest = () => {
   return request(app);
@@ -38,10 +39,7 @@ describe("users", () => {
   it(`should create entity with correct input data`, async () => {
     const data: CreateUserModel = { username: "new username" };
 
-    const createResponse = await request(app)
-      .post(RouterPath.users)
-      .send(data)
-      .expect(HTTP_STATUSES.CREATED_201);
+    const createResponse = await usersTestManager.createUser(data);
 
     createdEntity1 = createResponse.body.expect(createdEntity1).toEqual({
       id: expect.any(Number),
