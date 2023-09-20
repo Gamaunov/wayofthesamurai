@@ -1,6 +1,8 @@
-import express, { Response } from 'express'
+import express, { Response, Request } from 'express'
+import { body, validationResult } from 'express-validator'
 import { ProductViewModel } from './models/ProductViewModel'
 import {
+  ErrorType,
   RequestWithBody,
   RequestWithParams,
   RequestWithParamsAndBody,
@@ -10,6 +12,12 @@ import { QueryProductModel } from './models/QueryProductModel'
 import { CreateProductModel } from './models/CreateProductModel'
 import { productsRepository } from '../../repositories/products-repository'
 import { DBType, db } from '../../db/db'
+import { inputValidationMiddleware } from '../../middlewares/input-validation-middleware'
+
+const titleValidation = body('title')
+  .trim()
+  .isLength({ min: 3, max: 10 })
+  .withMessage('Title length should be from 3 to 10 symbols')
 
 export const getProductsRouter = (db: DBType) => {
   const router = express.Router()
@@ -39,13 +47,12 @@ export const getProductsRouter = (db: DBType) => {
   )
 
   router.post(
-    `/`,
-    (
-      req: RequestWithBody<CreateProductModel>,
-      res: Response<ProductViewModel>,
-    ) => {
+    '/',
+    titleValidation,
+    inputValidationMiddleware,
+    (req: Request, res: Response) => {
       const newProduct = productsRepository.createProduct(req.body.title)
-      res.status(201).send(newProduct)
+      return res.status(201).send(newProduct)
     },
   )
 
@@ -60,6 +67,8 @@ export const getProductsRouter = (db: DBType) => {
 
   router.put(
     `/:id`,
+    titleValidation,
+    inputValidationMiddleware,
     (req: RequestWithParamsAndBody<{ id: string }, { title: string }>, res) => {
       const isUpdated = productsRepository.updateProduct(
         +req.params.id,
