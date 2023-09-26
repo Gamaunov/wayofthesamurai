@@ -24,30 +24,30 @@ export const getUsersRouter = (db: DBType) => {
 
   router.get(
     '/',
-    (req: RequestWithQuery<QueryUserModel>, res: Response<UserViewModel[]>) => {
-      const foundUser = usersRepository.findUser(req.query.username?.toString())
+   async (req: RequestWithQuery<QueryUserModel>, res: Response<UserViewModel[]>) => {
+      const foundUser =await usersRepository.findUser(req.query.username?.toString())
       res.send(foundUser)
     },
   )
 
   router.get(
     `/:id`,
-    (req: RequestWithParams<{ id: string }>, res: Response<UserViewModel>) => {
-      let user = usersRepository.getUserById(+req.params.id)
+   async (req: RequestWithParams<{ id: string }>, res: Response<UserViewModel>) => {
+      let user =await usersRepository.getUserById(+req.params.id)
       user ? res.send(user) : res.sendStatus(404)
     },
   )
 
   router.post(
     `/`,
-    (req: RequestWithBody<CreateUserModel>, res: Response<UserViewModel>) => {
-      const newUser = usersRepository.createUser(req.body.username)
+   async (req: RequestWithBody<CreateUserModel>, res: Response<UserViewModel>) => {
+      const newUser =await usersRepository.createUser(req.body.username)
       res.status(201).send(newUser)
     },
   )
 
-  router.delete(`/:id`, (req: RequestWithParams<{ id: string }>, res) => {
-    const isDeleted = usersRepository.deleteUser(+req.params.id)
+  router.delete(`/:id`,async (req: RequestWithParams<{ id: string }>, res) => {
+    const isDeleted =await usersRepository.deleteUser(+req.params.id)
     if (isDeleted) {
       res.send(204)
     } else {
@@ -57,11 +57,11 @@ export const getUsersRouter = (db: DBType) => {
 
   router.put(
     `/:id`,
-    (
+   async (
       req: RequestWithParamsAndBody<{ id: string }, { username: string }>,
       res,
     ) => {
-      const isUpdated = usersRepository.updateUser(
+      const isUpdated =await usersRepository.updateUser(
         +req.params.id,
         req.body.username,
       )

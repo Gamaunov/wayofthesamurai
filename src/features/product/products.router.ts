@@ -24,11 +24,11 @@ export const getProductsRouter = (db: DBType) => {
 
   router.get(
     '/',
-    (
+    async (
       req: RequestWithQuery<QueryProductModel>,
       res: Response<ProductViewModel[]>,
     ) => {
-      const foundProducts = productsRepository.findProducts(
+      const foundProducts = await productsRepository.findProducts(
         req.query.title?.toString(),
       )
       res.send(foundProducts)
@@ -37,11 +37,11 @@ export const getProductsRouter = (db: DBType) => {
 
   router.get(
     `/:id`,
-    (
+    async (
       req: RequestWithParams<{ id: string }>,
       res: Response<ProductViewModel>,
     ) => {
-      let product = productsRepository.getProductById(+req.params.id)
+      let product = await productsRepository.getProductById(+req.params.id)
       product ? res.send(product) : res.sendStatus(404)
     },
   )
@@ -50,14 +50,14 @@ export const getProductsRouter = (db: DBType) => {
     '/',
     titleValidation,
     inputValidationMiddleware,
-    (req: Request, res: Response) => {
+    async (req: Request, res: Response) => {
       const newProduct = productsRepository.createProduct(req.body.title)
       return res.status(201).send(newProduct)
     },
   )
 
-  router.delete(`/:id`, (req: RequestWithParams<{ id: string }>, res) => {
-    const isDeleted = productsRepository.deleteProduct(+req.params.id)
+  router.delete(`/:id`, async (req: RequestWithParams<{ id: string }>, res) => {
+    const isDeleted = await productsRepository.deleteProduct(+req.params.id)
     if (isDeleted) {
       res.send(204)
     } else {
@@ -69,8 +69,11 @@ export const getProductsRouter = (db: DBType) => {
     `/:id`,
     titleValidation,
     inputValidationMiddleware,
-    (req: RequestWithParamsAndBody<{ id: string }, { title: string }>, res) => {
-      const isUpdated = productsRepository.updateProduct(
+    async (
+      req: RequestWithParamsAndBody<{ id: string }, { title: string }>,
+      res,
+    ) => {
+      const isUpdated = await productsRepository.updateProduct(
         +req.params.id,
         req.body.title,
       )
