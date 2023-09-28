@@ -1,25 +1,21 @@
 import express, { Response, Request } from 'express'
-import { body, validationResult } from 'express-validator'
-import { ProductViewModel } from './models/ProductViewModel'
+import { body } from 'express-validator'
 import {
-  ErrorType,
-  RequestWithBody,
   RequestWithParams,
   RequestWithParamsAndBody,
   RequestWithQuery,
-} from '../../types'
-import { QueryProductModel } from './models/QueryProductModel'
-import { CreateProductModel } from './models/CreateProductModel'
-import { productsRepository } from '../../repositories/products-repository'
-import { DBType, db } from '../../db/db'
-import { inputValidationMiddleware } from '../../middlewares/input-validation-middleware'
+} from '../types'
+import { productsRepository } from '../repositories/products-db-repository'
+import { inputValidationMiddleware } from '../middlewares/input-validation-middleware'
+import { QueryProductModel } from '../models/product/QueryProductModel'
+import { ProductViewModel } from '../models/product/ProductViewModel'
 
 const titleValidation = body('title')
   .trim()
   .isLength({ min: 3, max: 10 })
   .withMessage('Title length should be from 3 to 10 symbols')
 
-export const getProductsRouter = (db: DBType) => {
+export const getProductsRouter = () => {
   const router = express.Router()
 
   router.get(
@@ -41,7 +37,7 @@ export const getProductsRouter = (db: DBType) => {
       req: RequestWithParams<{ id: string }>,
       res: Response<ProductViewModel>,
     ) => {
-      let product = await productsRepository.getProductById(+req.params.id)
+      let product = await productsRepository.findProductById(+req.params.id)
       product ? res.send(product) : res.sendStatus(404)
     },
   )
@@ -51,7 +47,7 @@ export const getProductsRouter = (db: DBType) => {
     titleValidation,
     inputValidationMiddleware,
     async (req: Request, res: Response) => {
-      const newProduct = productsRepository.createProduct(req.body.title)
+      const newProduct = await productsRepository.createProduct(req.body.title)
       return res.status(201).send(newProduct)
     },
   )
@@ -69,16 +65,13 @@ export const getProductsRouter = (db: DBType) => {
     `/:id`,
     titleValidation,
     inputValidationMiddleware,
-    async (
-      req: RequestWithParamsAndBody<{ id: string }, { title: string }>,
-      res,
-    ) => {
+    async (req: Request, res: Response) => {
       const isUpdated = await productsRepository.updateProduct(
         +req.params.id,
         req.body.title,
       )
       if (isUpdated) {
-        const product = productsRepository.getProductById(+req.params.id)
+        const product = await productsRepository.findProductById(+req.params.id)
         res.send(product)
       } else {
         res.send(404)
