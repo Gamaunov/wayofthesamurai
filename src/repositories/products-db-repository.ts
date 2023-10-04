@@ -26,12 +26,7 @@ export const productsRepository = {
     }
   },
 
-  async createProduct(title: string): Promise<ProductType> {
-    const newProduct = {
-      id: +new Date(),
-      title: title,
-      studentsCount: 0,
-    }
+  async createProduct(newProduct: ProductType): Promise<ProductType> {
     const result = await productsCollection.insertOne(newProduct)
 
     return newProduct
